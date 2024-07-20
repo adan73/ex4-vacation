@@ -1,27 +1,26 @@
+require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const app = express();
 const port = process.env.PORT || 8080;
 const usersData = require('./data/Users.json');
+const userRoutes = require('./routes/userRoutes');
+const postRoutes = require('./routes/postRoutes');
 
-/*
-const { postsController } = require('./controllers/postsController.js');
-app.use((req, res, next) => {
- res.set({
- 'Access-Control-Allow-Origin': '*',
- 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
- 'Access-Control-Allow-Methods': "GET, POST, PUT, DELETE",
- 'Content-Type': 'application/json'
- });
- next();
-});
 
-app.get("/posts", async (req, res) => {
-    res.status(200).send(await postsController.getPosts());
-});
-*/
+app.use(bodyParser.json()); // Middleware to parse JSON request bodies
+app.use('/api/users', userRoutes);
+app.use('/api', postRoutes);
+
 app.get("/Users", (req, res) => {
     res.json(usersData);
-   });
+});
 
-app.listen(port);
-console.log(`listening on port ${port}`);
+app.get('/test', (req, res) => {
+    res.send('Server is working!');
+});
+
+app.listen(port, () => {
+    console.log(`listening on port ${port}`);
+});
