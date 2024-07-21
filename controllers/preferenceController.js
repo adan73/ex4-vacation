@@ -177,5 +177,31 @@ exports.preferenceController = {
         } finally {
             connection.end();
         }
+    },
+
+    async getSpecificPreference(req, res) {
+        const connection = await dbConnection.createConnection();
+        try {
+            const {username} = req.body;
+            const [user] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE username = ?`,[username]);
+            if(user.length === 0)
+               return res.status(400).json({ error: "User not found" });
+            const [row] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences WHERE userId = ${user[0].id}`);
+            if(row.length === 0)
+                return res.status(400).json({ error: "User doesn't have a preference" });
+            
+            res.status(200).json(row);
+            await connection.end();
+        } catch (err) {
+            res.status(500).json({ error: "Error inserting data from the database" });
+        } finally {
+            connection.end();
+        }
     }
+
+
+
+
+
+
 };
