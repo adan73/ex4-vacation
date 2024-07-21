@@ -1,5 +1,10 @@
 {
   "user": [
-    
+    {
+      "id": "1",
+      "username": "user1",
+      "userPassword": "gdsdgrszsrgh",
+      "accessToken": "bfe6d3cb8ca16142fa9b"
+    }
   ]
 }
