@@ -29,6 +29,13 @@ async function userHasExistingPreference(connection, userId) {
     );
     return rows.length > 0;
 }
+async function userPreferenceExisting(connection, userId) {
+    const [rows] = await connection.execute(
+        `SELECT * FROM dbShnkr24stud.tbl_49_preferences WHERE userId = ?`,
+        [userId]
+    );
+    return rows.length === 0;
+}
 
 exports.preferenceController = {
     async addPreference(req, res) {
@@ -64,6 +71,46 @@ exports.preferenceController = {
             );
             if (result.affectedRows !== 0) {
                 res.status(200).json({ message: "Preference added successfully" });
+            }
+        } catch (err) {
+            await connection.rollback();
+            console.error('Error inserting data into the database:', err.message);
+            res.status(500).json({ error: "Error inserting data into the database" });
+        } finally {
+            connection.end();
+        }
+    },
+
+    async updatePreference(req, res) {
+        const { username, userPassword } = req.body;
+
+        if (!username || !userPassword) {
+            return res.status(400).json({ error: "need to insert a username and password" });
+        }
+
+        const { accessToken, start_date, end_date, destination, vacationType } = req.body;
+
+        if (!accessToken || !start_date || !end_date || !destination || !vacationType) {
+            return res.status(400).json({ error: "something wrong, please check what you insert again" });
+        }
+        if (checkPreferenceData(res, start_date, end_date, vacationType, destination)) {
+            return;
+        }
+
+        const connection = await dbConnection.createConnection();
+        try {
+            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = ?`, [accessToken]);
+            if (rows.length === 0) {
+                return res.status(404).send("User not found, try again");
+            }
+
+            const userId = rows[0].id;
+            if (await userPreferenceExisting(connection, userId)) {
+                return res.status(400).json({ error: "user don't have a vacation preference" });
+            }
+            const [result] = await connection.execute(`UPDATE dbShnkr24stud.tbl_49_preferences SET start_date='${start_date}', end_date='${end_date}', destination='${destination}', vacationType='${vacationType}' WHERE userId='${userId}'`);
+            if (result.affectedRows !== 0) {
+                res.status(200).json({ message: "Preference update successfully" });
             }
         } catch (err) {
             await connection.rollback();
