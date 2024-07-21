@@ -3,7 +3,7 @@ const express = require('express');
 const { preferenceController } = require('../controllers/preferenceController');
 
 const router = express.Router();
-
+//the couldn't put post in the add and update i have a problem , so i have to put them on get so it work
 router.get('/add-preference', preferenceController.addPreference);
 router.get('/update-preference', preferenceController.updatePreference);
 router.get('/delete-preference', preferenceController.deletePreference);
