@@ -169,11 +169,13 @@ exports.preferenceController = {
     async getAllPreference(req, res) {
         const connection = await dbConnection.createConnection();
         try {
-            const [row] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences`);
-            res.status(200).json(row);
-            await connection.end();
+            const [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences`);
+            if (rows.length === 0) {
+                return res.status(404).json({ error: "No preferences found" });
+            }
+            res.status(200).json(rows);
         } catch (err) {
-            res.status(500).json({ error: "Error inserting data from the database" });
+            res.status(500).json({ error: "Error retrieving data from the database" });
         } finally {
             connection.end();
         }
