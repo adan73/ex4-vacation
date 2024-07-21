@@ -119,5 +119,63 @@ exports.preferenceController = {
         } finally {
             connection.end();
         }
+    },
+
+    
+    async deletePreference(req, res) {
+        const { username, userPassword, accessToken, start_date, end_date, destination, vacationType } = req.body;
+
+        if (!username || !userPassword) {
+            return res.status(400).json({ error: "need to insert a username and password" });
+        }
+
+        if (!accessToken || !start_date || !end_date || !destination || !vacationType) {
+            return res.status(400).json({ error: "something wrong, please check what you insert again" });
+        }
+        if (checkPreferenceData(res, start_date, end_date, vacationType, destination)) {
+            return;
+        }
+
+        const connection = await dbConnection.createConnection();
+        try {
+            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = ?`, [accessToken]);
+            if (rows.length === 0) {
+                return res.status(404).send("User not found, try again");
+            }
+
+            const userId = rows[0].id;
+            if (!(await userHasExistingPreference(connection, userId))) {
+                return res.status(400).json({ error: "user doesn't have a vacation preference" });
+            }
+
+            const [result] = await connection.execute(
+                `DELETE FROM dbShnkr24stud.tbl_49_preferences WHERE userId = ?`,
+                [userId]
+            );
+
+            if (result.affectedRows !== 0) {
+                res.status(200).json({ message: "Preference deleted successfully" });
+            } else {
+                res.status(400).json({ error: "Failed to delete preference" });
+            }
+        } catch (err) {
+            console.error('Error deleting data from the database:', err.message);
+            res.status(500).json({ error: "Error deleting data from the database" });
+        } finally {
+            connection.end();
+        }
+    },
+
+    async getAllPreference(req, res) {
+        const connection = await dbConnection.createConnection();
+        try {
+            const [row] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences`);
+            res.status(200).json(row);
+            await connection.end();
+        } catch (err) {
+            res.status(500).json({ error: "Error inserting data from the database" });
+        } finally {
+            connection.end();
+        }
     }
 };
