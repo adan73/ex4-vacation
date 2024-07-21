@@ -56,7 +56,7 @@ exports.preferenceController = {
 
         const connection = await dbConnection.createConnection();
         try {
-            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = ?`, [accessToken]);
+            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = '${accessToken}'`);
             if (rows.length === 0) {
                 return res.status(404).send("User not found, try again");
             }
@@ -66,8 +66,7 @@ exports.preferenceController = {
                 return res.status(400).json({ error: "Preference already exists for this user" });
             }
             const [result] = await connection.execute(
-                `INSERT INTO dbShnkr24stud.tbl_49_preferences (userId, start_date, end_date, destination, vacationType) VALUES (?, ?, ?, ?, ?)`,
-                [userId, start_date, end_date, destination, vacationType]
+                `INSERT INTO dbShnkr24stud.tbl_49_preferences (userId, start_date, end_date, destination, vacationType) VALUES ('${userId}', '${start_date}', '${end_date}', '${destination}', '${vacationType}')`,
             );
             if (result.affectedRows !== 0) {
                 res.status(200).json({ message: "Preference added successfully" });
@@ -99,7 +98,7 @@ exports.preferenceController = {
 
         const connection = await dbConnection.createConnection();
         try {
-            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = ?`, [accessToken]);
+            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken ='${accessToken}'`);
             if (rows.length === 0) {
                 return res.status(404).send("User not found, try again");
             }
@@ -138,7 +137,7 @@ exports.preferenceController = {
 
         const connection = await dbConnection.createConnection();
         try {
-            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = ?`, [accessToken]);
+            let [rows] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE accessToken = '${accessToken}'`);
             if (rows.length === 0) {
                 return res.status(404).send("User not found, try again");
             }
@@ -148,10 +147,7 @@ exports.preferenceController = {
                 return res.status(400).json({ error: "user doesn't have a vacation preference" });
             }
 
-            const [result] = await connection.execute(
-                `DELETE FROM dbShnkr24stud.tbl_49_preferences WHERE userId = ?`,
-                [userId]
-            );
+            const [result] = await connection.execute( `DELETE FROM dbShnkr24stud.tbl_49_preferences WHERE userId = '${userId}'`);
 
             if (result.affectedRows !== 0) {
                 res.status(200).json({ message: "Preference deleted successfully" });
@@ -185,7 +181,7 @@ exports.preferenceController = {
         const connection = await dbConnection.createConnection();
         try {
             const {username} = req.body;
-            const [user] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE username = ?`,[username]);
+            const [user] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_users WHERE username = '${username}'`);
             if(user.length === 0)
                return res.status(400).json({ error: "User not found" });
             const [row] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences WHERE userId = ${user[0].id}`);
