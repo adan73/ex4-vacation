@@ -197,10 +197,67 @@ exports.preferenceController = {
         } finally {
             connection.end();
         }
+    },
+    async getPreferenceResult(req, res) {
+        const connection = await dbConnection.createConnection();
+        try {
+            const [row] = await connection.execute(`SELECT * FROM dbShnkr24stud.tbl_49_preferences`);
+            if(row.length < 5)
+                return res.status(400).json({ error: "we dont have the 5 users preferences" });
+            
+
+            const [destinationRows] = await connection.execute(`
+                SELECT destination, COUNT(destination) AS destination_count 
+                FROM dbShnkr24stud.tbl_49_preferences 
+                GROUP BY destination 
+                ORDER BY destination_count DESC, id ASC 
+                LIMIT 1
+            `);
+            const vacationDestination = destinationRows[0].destination;
+    
+            const [typeRows] = await connection.execute(`
+                SELECT vacationType, COUNT(vacationType) AS type_count 
+                FROM dbShnkr24stud.tbl_49_preferences 
+                GROUP BY vacationType 
+                ORDER BY type_count DESC, id ASC 
+                LIMIT 1
+            `);
+            const vacationType = typeRows[0].vacationType;
+    
+            const [startDateRows] = await connection.execute(`
+                SELECT start_date 
+                FROM dbShnkr24stud.tbl_49_preferences 
+                ORDER BY start_date DESC 
+                LIMIT 1
+            `);
+            const startDate = startDateRows[0].start_date;
+    
+            const [endDateRows] = await connection.execute(`
+                SELECT end_date 
+                FROM dbShnkr24stud.tbl_49_preferences 
+                ORDER BY end_date ASC 
+                LIMIT 1
+            `);
+            const endDate = endDateRows[0].end_date;
+    
+            const duration = (Date.parse(endDate) - Date.parse(startDate)) / (1000 * 60 * 60 * 24);
+            if (duration > 7 || duration < 0) {
+                return res.status(400).json({ error: "There is no suitable vacation date for everyone" });
+            }
+    
+            res.status(200).json({
+                message: "Vacation Result",
+                destination: vacationDestination,
+                "vacation-type": vacationType,
+                "start-date": startDate,
+                "end-date": endDate
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        } finally {
+            await connection.end();
+        }
     }
-
-
-
 
 
 

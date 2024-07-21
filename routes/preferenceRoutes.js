@@ -9,6 +9,7 @@ router.get('/update-preference', preferenceController.updatePreference);
 router.get('/delete-preference', preferenceController.deletePreference);
 router.get('/get-all-preference', preferenceController.getAllPreference);
 router.get('/get-specific-preference', preferenceController.getSpecificPreference);
+router.get('/get-the-result', preferenceController.getPreferenceResult);
 
 
 
