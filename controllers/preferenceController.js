@@ -245,12 +245,8 @@ exports.preferenceController = {
                 return res.status(400).json({ error: "There is no suitable vacation date for everyone" });
             }
     
-            res.status(200).json({
-                message: "Vacation Result",
-                destination: vacationDestination,
-                "vacation-type": vacationType,
-                "start-date": startDate,
-                "end-date": endDate
+            res.status(200).json({message: "Vacation final Result are:", destination: vacationDestination,
+                "vacation-type": vacationType,"start-date": startDate,"end-date": endDate
             });
         } catch (error) {
             res.status(500).json({ error: error.message });
